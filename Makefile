@@ -1,4 +1,4 @@
-CC = gcc
+CC = gcc//
 CFLAGS = -Wall -g -O2
 CONF = -I.
 ALLEG = `allegro-config --libs`
