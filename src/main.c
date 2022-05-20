@@ -23,13 +23,13 @@ int main(int argc, char **argv) {
     init_rt_thread_manager();
     printf("Thread manager successfully initialized.\n");
 
-    /* Initialize data structures needed to spawn/kill planets */
+    /* Initialize data structures needed to add/remove planets */
     init_planets_manager();
     printf("Planet manager successfully initialized.\n");
 
-    /* Spawn a few planets [default 9 planets]*/
-    unsigned int spawned = spawn_planets(MAX_PLANETS);
-    printf("Successfully spawned %d planets.\n", spawned);
+    /* add a few planets [default 9 planets]*/
+    unsigned int added = add_planets(MAX_PLANETS);
+    printf("Successfully added %d planets.\n", added);
 
     /* Initialize graphics, mouse and keyboard */
     if (init_multimedia())
@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
     wait_for_termination();
 
     /* Remove all the planets from the space*/
-    kill_planets();
+    remove_planets();
     printf("planets removed.\n");
 
     /* Halt graphics, mouse and keyboard */

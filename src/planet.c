@@ -13,13 +13,13 @@
 
 planet planets[MAX_PLANETS];		// container for planet descriptors
 orbit orbits[MAX_PLANETS];
-uint8_t n_planets = 0; 		// current number of planets in the field
+uint8_t n_planets = 0; 		// current number of planets in the space
 pthread_mutex_t planets_mtx = PTHREAD_MUTEX_INITIALIZER; // mutex to protect planets
 
 const float TWO_PI = 2*M_PI;
 const double STEP_TIME = (double)PRD_PLANETS/1000;
 
-/* Initialize the descriptor of an planet right after spawn */
+/* Initialize the descriptor of an planet right after add */
 void init_planet_param( planet *const p, int tid) {
 
 	p->alive = true;
@@ -148,9 +148,9 @@ void deallocate_planet_id(unsigned int id) {
 	pthread_mutex_unlock(&planets_mtx);
 }
 
-/* Add a new planet to the current population.
-*  Returns 0 if success, -1 if population is full, -2 if thread pool is full. */
-int spawn_planet(void) {
+/* Add a new planet to orbit in the solar space.
+*  Returns 0 if success, -1 if the solar space is full, -2 if thread pool is full. */
+int add_planet(void) {
 
 	unsigned int p_id;		// id of the new planet (index in planets array)
 	int t_id;				// if the new thread
@@ -176,9 +176,9 @@ int spawn_planet(void) {
 }
 
 
-/* Kills the planet with the specified id.
-*  Returns 0 if success, -1 if it was already dead. */
-int kill_planet(unsigned int i) {
+/* removes the planet with the specified id.
+*  Returns 0 if success, -1 if it was already removed. */
+int remove_planet(unsigned int i) {
 
 	pthread_mutex_lock(&planets[i].mtx);
 	if (!planets[i].alive) {
@@ -194,29 +194,29 @@ int kill_planet(unsigned int i) {
 }
 
 
-/* Spawns the specified number of planets. If there is not enough room for all,
+/* adds the specified number of planets. If there is not enough room for all,
 *  create as many as possible.
-*  Returns the number of successfully spawned planets. */
-unsigned int spawn_planets(unsigned int n) {
+*  Returns the number of successfully added planets. */
+unsigned int add_planets(unsigned int n) {
 
 	for (int i = 0; i < n; ++i) {
-		if (spawn_planet() < 0)
+		if (add_planet() < 0)
 			return i;
 	}
 	return n;
 }
 
 
-/* Kills all the planets in the field. */
-void kill_planets(void) {
+/* removes all the planets from the space. */
+void remove_planets(void) {
 
 	for (int i = 0; i < MAX_PLANETS; ++i)
-		kill_planet(i);
+		remove_planet(i);
 }
 
 
-/* Return the id of an planet given a position, within a certain degree of approximation.
-*  If multiple planets are near that position, returns the one with lowest id. */
+/* Return the id of a planet given a position, within a certain degree of approximation.
+** */
 int get_planet_id_by_pos(int x, int y) {
 
 	for (int i = 0; i < MAX_PLANETS; ++i) {
@@ -257,7 +257,7 @@ int get_planet_id_by_orbit_pos(int x , int y){
 		return 8;
 	else return -1;
 }
-/* Initialize data structures to handle planet spawning/killing */
+/* Initialize data structures to handle planet adding/removeing */
 void init_planets_manager(void) {
 
 	pthread_mutex_lock(&planets_mtx);

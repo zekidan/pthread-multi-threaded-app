@@ -15,7 +15,7 @@
 #include <stdbool.h>
 
 #include "conf/planets.h"
-#include "conf/field.h"
+#include "conf/space.h"
 #include "rt_thread.h"
 
 extern const float TWO_PI;
@@ -53,13 +53,12 @@ extern pthread_mutex_t planets_mtx;
 
 
 void init_planets_manager();
-int spawn_planet(void);
-unsigned int spawn_planets(unsigned int n_planets);
-int kill_planet(unsigned int i);
-void kill_planets(void);
+int add_planet(void);
+unsigned int add_planets(unsigned int n_planets);
+int remove_planet(unsigned int i);
+void remove_planets(void);
 int get_planet_id_by_pos(int x, int y);
 int get_planet_id_by_orbit_pos(int x , int y);
-
 
 
 #endif/* PLANET_H_ */

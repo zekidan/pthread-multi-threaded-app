@@ -2,7 +2,7 @@
 #define MULTIMEDIA_H
 
 #include "planet.h"
-#include "conf/field.h"
+#include "conf/space.h"
 #include "conf/multimedia.h"
 #include "rt_thread.h"
 

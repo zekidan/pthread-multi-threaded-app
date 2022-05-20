@@ -1,5 +1,5 @@
-#ifndef CONF_FIELD_H
-#define CONF_FIELD_H
+#ifndef CONF_SPACE_H
+#define CONF_SPACE_H
 
 
 /* ======================== 

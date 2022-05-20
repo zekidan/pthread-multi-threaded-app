@@ -4,14 +4,14 @@
 #include <stdio.h>
 #include <allegro/keyboard.h>
 
-#define CELL_SIZE   	10  	// size of a cell (must divide field height and width)
+#define CELL_SIZE   	10  	// size of a cell (must divide sspace height and width)
 
 #include "multimedia.h"
 
 #define BG_PATH             "img/solarsysbg.bmp"
 #define ICON_IDLE			"img/icon/idle.bmp"
-#define ICON_ADD_planet 	"img/icon/addplanet.bmp"
-#define ICON_KILL_planet	"img/icon/killplanet.bmp"
+#define ICON_ADD_PLANET 	"img/icon/addplanet.bmp"
+#define ICON_REMOVE_PLANET	"img/icon/removeplanet.bmp"
 #define ICON_EXIT        	"img/icon/exit.bmp"
 
 #define SUN_PATH		"img/sun.bmp"
@@ -35,7 +35,7 @@ pthread_mutex_t selected_planet_mtx = PTHREAD_MUTEX_INITIALIZER;
 unsigned int graphics_tid, keyboard_tid, mouse_tid;     // threads IDs
 
 BITMAP* surface;
-BITMAP* fieldbmp;
+BITMAP* sspacebmp;//bitmap for the solar space
 //BITMAP *planetbmp;
 
 BITMAP *sunbmp;
@@ -52,7 +52,7 @@ BITMAP *neptunebmp;
 
 
 
-typedef enum action {IDLE, ADD_planet, KILL_planet, EXIT, N_ACTIONS} action;
+typedef enum action {IDLE, ADD_PLANET, REMOVE_planet, EXIT, N_ACTIONS} action;
 
 action current_action = IDLE;
 
@@ -82,8 +82,8 @@ typedef struct icon {
 
 char* icon_bmp_paths[N_ACTIONS] = {
     ICON_IDLE,
-    ICON_ADD_planet,
-    ICON_KILL_planet,
+    ICON_ADD_PLANET,
+    ICON_REMOVE_PLANET,
     ICON_EXIT
 };
 
@@ -164,7 +164,7 @@ unsigned int init_graphics() {
         return 2;
 
     surface = create_bitmap(SCREEN_W, SCREEN_H);
-    fieldbmp = load_bitmap(BG_PATH, NULL);
+    sspacebmp = load_bitmap(BG_PATH, NULL);
     //planetbmp = load_bitmap(planet_PATH, NULL);
     sunbmp = load_bitmap(SUN_PATH, NULL);
     mercurybmp = load_bitmap(MERCURY_PATH, NULL);
@@ -186,9 +186,9 @@ unsigned int init_graphics() {
 }
 
 
-void clear_field() {
+void clear_sspace() {
 
-    blit(fieldbmp, surface, 0, 0, 0, 0, fieldbmp->w, fieldbmp->h);//TO DO...
+    blit(sspacebmp, surface, 0, 0, 0, 0, sspacebmp->w, sspacebmp->h);//TO DO...
 }
 
 
@@ -454,7 +454,7 @@ static inline void draw_planet(int i, bool selected) {
 /* Graphic task routine */
 void *graphics_behaviour(void *arg) {
 
-    clear_field();
+    clear_sspace();//clear the solar space.
 
     //draw The Sun
     draw_sun();
@@ -546,15 +546,15 @@ void *keyboard_behaviour(void *arg) {
 			snprintf(current_message, 80, "%s", "Left-click on a planet to view info about it");
 			break;
 		case KEY_E:
-			set_action(ADD_planet);
-			if (spawn_planet() == 0)
-				snprintf(current_message, 80, "%s", "planet spawned!");
+			set_action(ADD_PLANET);
+			if (add_planet() == 0)
+				snprintf(current_message, 80, "%s", "planet added!");
 			else
-				snprintf(current_message, 80, "%s", "Failed to spawn a new planet (too many)");
+				snprintf(current_message, 80, "%s", "Failed to add a new planet (too many)");
 			break;
 		case KEY_R:
-			set_action(KILL_planet);
-			snprintf(current_message, 80, "%s", "Left-click on the planet to kill");
+			set_action(remove_planet);
+			snprintf(current_message, 80, "%s", "Left-click on the planet to remove");
 			break;
 		default:
 			printf("Press ESC to quit!\n");
@@ -616,10 +616,10 @@ void *mouse_behaviour(void *arg) {
         case 1:     // Left-click
             switch(a) {
 
-                case KILL_planet:
+                case remove_planet:
                     planet_id = get_planet_id_by_orbit_pos(x, y);
-                    if (planet_id >= 0 && kill_planet(planet_id) > 0) {
-                        snprintf(current_message, 80, "%s", "Killed planet!");
+                    if (planet_id >= 0 && remove_planet(planet_id) > 0) {
+                        snprintf(current_message, 80, "%s", "removed planet!");
                         set_action(IDLE);
                     }
                     break;
